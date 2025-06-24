@@ -5,3 +5,13 @@ CREATE TABLE traffic_data (
   incident TEXT,
   timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE citizen_reports (
+  id SERIAL PRIMARY KEY,
+  issue_type TEXT,
+  location TEXT,
+  description TEXT,
+  image_url TEXT,
+  status TEXT,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
