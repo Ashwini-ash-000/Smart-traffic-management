@@ -1,0 +1,138 @@
+<!-- frontend/admin/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          background: #f8fafc;
+          padding: 20px;
+          color: #1e293b;
+        }
+        h2 {
+          margin-bottom: 10px;
+        }
+        button {
+          padding: 8px 14px;
+          background-color: #0f766e;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          font-weight: bold;
+        }
+        button:hover {
+          background-color: #0d5e59;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 20px;
+          background: white;
+          box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        th, td {
+          padding: 10px;
+          border: 1px solid #ddd;
+          text-align: center;
+        }
+        th {
+          background-color: #e2e8f0;
+        }
+        a {
+          color: #2563eb;
+          text-decoration: none;
+        }
+        a:hover {
+          text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<h2>📋 Admin Dashboard - Citizen Reports</h2>
+<button onclick="logout()">🚪 Logout</button>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Location</th>
+        <th>Image</th>
+        <th>Status</th>
+        <th>Update</th>
+    </tr>
+    </thead>
+    <tbody id="reportTable"></tbody>
+</table>
+
+<script>
+    const API = "https://smart-traffic-management-backend.onrender.com";
+
+    if (localStorage.getItem("auth") !== "true") {
+      window.location.href = "login.html";
+    }
+
+    async function loadReports() {
+      try {
+        const res = await fetch(`${API}/api/reports`);
+        const data = await res.json();
+        const table = document.getElementById("reportTable");
+        table.innerHTML = "";
+
+        data.forEach(report => {
+          const photoUrl = `${API}${report.photo_url || ''}`;
+          table.innerHTML += `
+            <tr>
+              <td>${report.id}</td>
+              <td>${report.report_type}</td>
+              <td>${report.location}</td>
+              <td><a href="${photoUrl}" target="_blank">View</a></td>
+              <td>${report.status}</td>
+              <td>
+                ${report.status !== "Resolved"
+                  ? `<button onclick="markResolved(${report.id})">Resolve</button>`
+                  : "✅"}
+              </td>
+            </tr>`;
+        });
+      } catch (error) {
+        alert("❌ Failed to load reports.");
+        console.error(error);
+      }
+    }
+
+    async function markResolved(id) {
+      try {
+        const res = await fetch(`${API}/api/reports/${id}/resolve`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          alert(data.message || "✅ Report marked as resolved.");
+          loadReports();
+        } else {
+          alert("❌ Error resolving report.");
+        }
+      } catch (err) {
+        console.error("Resolve failed:", err);
+        alert("❌ Error resolving report.");
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("auth");
+      window.location.href = "login.html";
+    }
+
+    loadReports();
+</script>
+</body>
+</html>

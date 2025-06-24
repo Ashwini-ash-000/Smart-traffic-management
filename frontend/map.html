@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Map - Smart Traffic</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; }
+        #map { height: 100vh; width: 100%; }
+        .legend {
+          background: white;
+          padding: 10px;
+          line-height: 1.5;
+          font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    const map = L.map('map').setView([12.9716, 77.5946], 12); // Bengaluru default
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    const ICONS = {
+      Pothole: '🔧',
+      Accident: '💥',
+      WrongSide: '🚫',
+      Others: '⚠️'
+    };
+
+    async function loadReports() {
+      const res = await fetch("https://smart-traffic-management-backend.onrender.com/api/reports");
+      const reports = await res.json();
+
+      reports.forEach(report => {
+        if (!report.location) return;
+
+        const [lat, lng] = report.location.split(',').map(Number);
+        if (isNaN(lat) || isNaN(lng)) return;
+
+        const marker = L.marker([lat, lng]).addTo(map);
+        marker.bindPopup(`
+          <strong>${report.report_type} ${ICONS[report.report_type] || ''}</strong><br>
+          <em>Status:</em> ${report.status}<br>
+          ${report.image_url ? `<img src="${report.image_url}" width="200" style="margin-top:8px;" />` : ''}
+        `);
+      });
+    }
+
+    loadReports();
+</script>
+</body>
+</html>

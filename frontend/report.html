@@ -1,0 +1,92 @@
+<!-- report.html - Citizen Reporting Portal -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Citizen Report Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+          font-family: 'Inter', sans-serif;
+          background: #f0f9ff;
+          padding: 20px;
+          color: #1e293b;
+        }
+        .container {
+          max-width: 600px;
+          margin: auto;
+          background: white;
+          padding: 20px;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        h2 {
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        input, select, textarea, button {
+          width: 100%;
+          margin-top: 10px;
+          padding: 10px;
+          font-size: 16px;
+          border: 1px solid #cbd5e1;
+          border-radius: 8px;
+        }
+        button {
+          background: #0f766e;
+          color: white;
+          border: none;
+          margin-top: 20px;
+        }
+        button:hover {
+          background: #115e59;
+          cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>📸 Citizen Issue Reporting</h2>
+    <form id="reportForm">
+        <select id="report_type" required>
+            <option value="">Select Issue Type</option>
+            <option value="Pothole">Pothole</option>
+            <option value="Accident">Accident</option>
+            <option value="Wrong-side Driving">Wrong-side Driving</option>
+            <option value="Road Blockage">Road Blockage</option>
+        </select>
+        <input type="text" id="location" placeholder="Location (e.g. Whitefield)" required />
+        <input type="file" id="photo" accept="image/*" required />
+        <button type="submit">🚀 Submit Report</button>
+    </form>
+    <p id="message"></p>
+</div>
+
+<script>
+    const reportForm = document.getElementById('reportForm');
+    const API = 'https://smart-traffic-management-backend.onrender.com/api/reports';
+
+    reportForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData();
+      formData.append('report_type', document.getElementById('report_type').value);
+      formData.append('location', document.getElementById('location').value);
+      formData.append('photo', document.getElementById('photo').files[0]);
+
+      try {
+        const res = await fetch(API, {
+          method: 'POST',
+          body: formData
+        });
+        const result = await res.json();
+        document.getElementById('message').textContent = result.message;
+        reportForm.reset();
+      } catch (err) {
+        document.getElementById('message').textContent = 'Error submitting report.';
+      }
+    });
+</script>
+</body>
+</html>

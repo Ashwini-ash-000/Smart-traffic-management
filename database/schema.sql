@@ -15,3 +15,9 @@ CREATE TABLE citizen_reports (
   status TEXT,
   timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE admins (
+  id SERIAL PRIMARY KEY,
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL -- Store hashed passwords in production
+);

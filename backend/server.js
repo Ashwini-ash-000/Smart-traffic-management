@@ -38,6 +38,7 @@ const pool = new Pool({
 
 // ─── Routes ───
 
+// Health check
 app.get('/', (req, res) => {
   res.send('🚦 Smart Traffic Backend API is running.');
 });
@@ -100,18 +101,41 @@ app.post('/api/reports', upload.single('photo'), async (req, res) => {
   }
 });
 
-// ── PUT: Update report status ──
+// ── PUT: Update report status directly ──
 app.put('/api/reports/:id/status', async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
+
   try {
-    await pool.query(
+    const result = await pool.query(
       'UPDATE citizen_reports SET status = $1 WHERE id = $2',
       [status, id]
     );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
     res.json({ message: '✅ Report status updated.' });
   } catch (err) {
     console.error('Error updating status:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── PUT: Mark report as resolved ──
+app.put('/api/reports/:id/resolve', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      'UPDATE citizen_reports SET status = $1 WHERE id = $2',
+      ['Resolved', id]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+    res.status(200).json({ message: '✅ Report marked as resolved' });
+  } catch (err) {
+    console.error('Error resolving report:', err.message);
     res.status(500).json({ error: err.message });
   }
 });

@@ -1,0 +1,47 @@
+<!-- frontend/admin/login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .card {
+          background: white; padding: 30px; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+          width: 300px;
+        }
+        h2 { text-align: center; color: #0f172a; }
+        input, button {
+          width: 100%; padding: 10px; margin-top: 10px; border-radius: 6px;
+          border: 1px solid #cbd5e1; font-size: 16px;
+        }
+        button {
+          background: #0f766e; color: white; font-weight: 600;
+          border: none;
+        }
+        button:hover { background: #115e59; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>Admin Login</h2>
+    <input type="text" id="username" placeholder="Username" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+</div>
+
+<script>
+    function login() {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      if (user === "admin" && pass === "admin123") {
+        localStorage.setItem("auth", "true");
+        window.location.href = "dashboard.html";
+      } else {
+        alert("Invalid credentials!");
+      }
+    }
+</script>
+</body>
+</html>
