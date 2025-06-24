@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Smart Traffic Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
+        h1 { text-align: center; }
+        form, table { max-width: 600px; margin: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #eee; }
+        input, select, button { padding: 8px; margin: 5px 0; width: 100%; }
+    </style>
+</head>
+<body>
+<h1>Smart Traffic & Highway Management</h1>
+<form id="trafficForm">
+    <input type="text" id="location" placeholder="Location" required />
+    <input type="number" id="congestion_level" placeholder="Congestion Level (0-10)" min="0" max="10" required />
+    <input type="text" id="incident" placeholder="Incident (if any)" />
+    <button type="submit">Submit Traffic Data</button>
+</form>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Location</th>
+        <th>Congestion</th>
+        <th>Incident</th>
+        <th>Timestamp</th>
+    </tr>
+    </thead>
+    <tbody id="trafficTable"></tbody>
+</table>
+
+<script>
+    const API = "http://localhost:5000/api/traffic";
+
+    async function loadTraffic() {
+      const res = await fetch(API);
+      const data = await res.json();
+      const tbody = document.getElementById("trafficTable");
+      tbody.innerHTML = "";
+      data.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.id}</td>
+          <td>${row.location}</td>
+          <td>${row.congestion_level}</td>
+          <td>${row.incident || "—"}</td>
+          <td>${new Date(row.timestamp).toLocaleString()}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById("trafficForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const location = document.getElementById("location").value;
+      const congestion_level = document.getElementById("congestion_level").value;
+      const incident = document.getElementById("incident").value;
+
+      await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ location, congestion_level, incident })
+      });
+
+      document.getElementById("trafficForm").reset();
+      loadTraffic();
+    });
+
+    loadTraffic();
+    setInterval(loadTraffic, 10000); // Refresh every 10 sec
+</script>
+</body>
+</html>
