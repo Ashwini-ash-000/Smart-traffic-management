@@ -11,7 +11,7 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
         th { background-color: #eee; }
-        input, select, button { padding: 8px; margin: 5px 0; width: 100%; }
+        input, button { padding: 8px; margin: 5px 0; width: 100%; }
     </style>
 </head>
 <body>
@@ -37,24 +37,29 @@
 </table>
 
 <script>
-    const API = "http://localhost:5000/api/traffic";
+    // 🔁 Replace this URL with your deployed backend Render URL
+    const API = "https://smart-traffic-management-s2fe.onrender.com";
 
     async function loadTraffic() {
-      const res = await fetch(API);
-      const data = await res.json();
-      const tbody = document.getElementById("trafficTable");
-      tbody.innerHTML = "";
-      data.forEach(row => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${row.id}</td>
-          <td>${row.location}</td>
-          <td>${row.congestion_level}</td>
-          <td>${row.incident || "—"}</td>
-          <td>${new Date(row.timestamp).toLocaleString()}</td>
-        `;
-        tbody.appendChild(tr);
-      });
+      try {
+        const res = await fetch(API);
+        const data = await res.json();
+        const tbody = document.getElementById("trafficTable");
+        tbody.innerHTML = "";
+        data.forEach(row => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row.id}</td>
+            <td>${row.location}</td>
+            <td>${row.congestion_level}</td>
+            <td>${row.incident || "—"}</td>
+            <td>${new Date(row.timestamp).toLocaleString()}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error("Error loading traffic data:", err);
+      }
     }
 
     document.getElementById("trafficForm").addEventListener("submit", async (e) => {
@@ -63,18 +68,21 @@
       const congestion_level = document.getElementById("congestion_level").value;
       const incident = document.getElementById("incident").value;
 
-      await fetch(API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ location, congestion_level, incident })
-      });
-
-      document.getElementById("trafficForm").reset();
-      loadTraffic();
+      try {
+        await fetch(API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ location, congestion_level, incident })
+        });
+        document.getElementById("trafficForm").reset();
+        loadTraffic();
+      } catch (err) {
+        console.error("Error submitting traffic data:", err);
+      }
     });
 
     loadTraffic();
-    setInterval(loadTraffic, 10000); // Refresh every 10 sec
+    setInterval(loadTraffic, 10000); // Refresh every 10 seconds
 </script>
 </body>
 </html>

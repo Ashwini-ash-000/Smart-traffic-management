@@ -1,17 +1,14 @@
-// Backend: Express.js Server (server.js)
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // PostgreSQL connection pool
-//const { Pool } = require('pg');
-
 const pool = new Pool({
   user: 'smart_traffic_user',
   host: 'dpg-d1d7spbe5dus73b3e0v0-a.oregon-postgres.render.com',
@@ -23,8 +20,7 @@ const pool = new Pool({
   }
 });
 
-
-// Optional root route to verify server is running
+// Root route
 app.get('/', (req, res) => {
   res.send('Smart Traffic Backend API is running.');
 });
